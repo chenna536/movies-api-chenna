@@ -1,14 +1,8 @@
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-param-reassign */
-/* eslint-disable guard-for-in */
-/* eslint-disable no-console */
-
-// Creating connection between mysql and localhost
+/* eslint-disable no-restricted-syntax */
 const mysql = require('mysql');
 
-const fs = require('fs');
-
-const moviesData = JSON.parse(fs.readFileSync('./movies.json'));
+const inputData = require('../models/movies.json');
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -17,51 +11,53 @@ const connection = mysql.createConnection({
   database: 'keshav',
 });
 
-// Create connection!!
+// const connection = require('../utils/connection');
 
-// connection.connect((err) => {
-//   if (err) {
-//     console.error(`error connecting ${err.stack}`);
-//   }
-//   console.log(`connected as Id ${connection.threadId}`);
-// });
-
-// Create Movies Table!!
-
-
+connection.connect((err) => {
+  if (err) {
+    console.error(`error connecting ${err.stack}`);
+  }
+  console.log(`connected as Id ${connection.threadId}`);
+});
 // Create table!!
-function createTable(queryForTable) {
-  connection.query(queryForTable, (err) => {
-    if (err) throw err;
-    console.log('Created Table successfully');
+function createTable(queryForTable, name) {
+  return new Promise((resolve, reject) => {
+    connection.query(queryForTable, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+      console.log(`Created ${name} Table successfully`);
+    });
   });
 }
 
-
+// Create Movies Table!!
 const createMoviesTable = 'create table Movies ( Rank int auto_increment unique, Title varchar(100), Description varchar(1000), Runtime int, Genre varchar(15), Rating float, Metascore int, Votes int, Gross_Earning_in_Mil float, Director INT, Actor varchar(200), Year int(4) );';
-// createTable(createMoviesTable);
+
 
 // Create Directors Table!!
 const createDirectorsTable = 'create table Directors ( Id INT AUTO_INCREMENT PRIMARY KEY, Director_name VARCHAR(30))';
-
-// createTable(createDirectorsTable);
 
 // connection.query('SHOW Tables', (err, results) => {
 //   if (err) throw err;
 //   else console.log(results);
 // });
 
-// Delete table
-
+// Delete table!!
 function dropTable(tableName) {
-  connection.query(`DROP TABLE ${tableName}`, (err) => {
-    if (err) throw err;
-    console.log('Dropped Table successfully');
+  return new Promise((resolve, reject) => {
+    connection.query(`DROP TABLE ${tableName}`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+      console.log(`Dropped ${tableName} Table successfully`);
+    });
   });
 }
-
-// dropTable('Directors');
-// dropTable('Movies');
 
 // connection.query('SELECT * FROM Directors', (err, results) => {
 //   if (err) throw err;
@@ -69,7 +65,6 @@ function dropTable(tableName) {
 // });
 
 // Insert data into Movies tables!!
-
 function selectIDFromDirector(obj) {
   return new Promise((resolve, reject) => {
     connection.query('SELECT Id FROM Directors WHERE Director_name = (?)', obj.Director, (err, result) => {
@@ -86,9 +81,11 @@ function selectIDFromDirector(obj) {
 function insertIntoMovies(data) {
   return new Promise((resolve, reject) => {
     data.forEach((obj) => {
-      for (const prop in obj) {
-        if (obj[prop] === 'NA') {
-          obj[prop] = null;
+      if (Object.values(obj).includes('NA')) {
+        for (const prop in obj) {
+          if (obj[prop] === 'NA') {
+            obj[prop] = null;
+          }
         }
       }
       selectIDFromDirector(obj).then((newObj) => {
@@ -101,33 +98,40 @@ function insertIntoMovies(data) {
         });
       }).catch(error => console.log(error));
     });
-    // resolve(data);
+    console.log('inserted into movies Successfully');
   });
 }
 
-// insertIntoMovies(moviesData).then((out) => {
+// insertIntoMovies(inputData).then((out) => {
 //   console.log(out);
 // });
 
-// console.log(insertIntoMovies(moviesData));
+// console.log(insertIntoMovies(inputData));
 
 // Insert data into Directors tables!!
 
-function insertIntoDirectors() {
+function insertIntoDirectors(data) {
   const director = new Set();
-  moviesData.forEach((obj) => {
+  data.forEach((obj) => {
     director.add(obj.Director);
   });
   const directors = [];
   director.forEach(item => directors.push([item]));
-  connection.query('insert into Directors(Director_name) values ?', [directors], (err, results) => {
-    if (err) throw err;
-    console.log(results);
+  return new Promise((resolve, reject) => {
+    connection.query('insert into Directors(Director_name) values ?', [directors], (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+    console.log('inserted into Directors Successfully');
   });
 }
-
-// insertIntoDirectors();
-
-// connection.end();
-
-module.exports.connection = connection;
+dropTable('Directors')
+  .then(() => dropTable('Movies')
+    .then(() => createTable(createDirectorsTable, 'Directors')
+      .then(() => createTable(createMoviesTable, 'Movies')
+        .then(() => insertIntoDirectors(inputData)
+          .then(() => insertIntoMovies(inputData)
+            .then(() => connection.end()))))));

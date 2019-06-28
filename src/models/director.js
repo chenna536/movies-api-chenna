@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 // Get all directors
-const functions = require('./connection.js');
+const functions = require('../utils/connection.js');
 
 const { connection } = functions;
 
 function getAllDirectors() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT Director_name FROM Directors;', (error, result) => {
+    connection.query('SELECT * FROM Directors;', (error, result) => {
       if (error) {
         reject(error);
       } else {
@@ -24,7 +24,7 @@ function getAllDirectors() {
 
 function getDirectorWithID(id) {
   return new Promise((resolve, reject) => {
-    connection.query(`SELECT * FROM Directors WHERE Id = ${id}`, (err, result) => {
+    connection.query('SELECT * FROM Directors WHERE Id = (?)', id, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -57,7 +57,7 @@ function updateDirectorWithID(id, name) {
 
 // Delete the director with given ID
 function deleteDirectorWithID(id) {
-  connection.query(`DELETE FROM Directors WHERE Id = ${id}`, (err, results) => {
+  connection.query('DELETE FROM Directors WHERE Id = (?)', id, (err, results) => {
     if (err) throw err;
     console.log(results);
   });
