@@ -16,10 +16,7 @@ function getAllDirectors() {
   });
 }
 
-// getAllDirectors().then((data) => {
-//   console.log(data);
-// });
-
+// getAllDirectors().then(data => console.log(data));
 // Get the director with given ID
 
 function getDirectorWithID(id) {
@@ -29,6 +26,7 @@ function getDirectorWithID(id) {
         reject(err);
       } else {
         resolve(result);
+        console.log(`Director with given Id ${id}`);
       }
     });
   });
@@ -38,34 +36,61 @@ function getDirectorWithID(id) {
 
 // Add a new director
 
-function addNewDirector() {
-  connection.query('INSERT INTO Directors (Director_name) Values (\'Rajamouli\')', (err, results) => {
-    if (err) throw err;
-    console.log(results);
+function addNewDirector(data) {
+  return new Promise((resolve, reject) => {
+    connection.query('INSERT INTO Directors set ?', data, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
   });
 }
-// addNewDirector();
+
+// addNewDirector('Rajamouli');
 
 // Update the director with given ID
-function updateDirectorWithID(id, name) {
-  connection.query(`UPDATE Directors SET Director_name = ${name} WHERE Id = ${id}`, (err, results) => {
-    if (err) throw err;
-    console.log(results);
+function updateDirectorWithID(id, data) {
+  const query = `UPDATE Directors SET ? WHERE Id = ${id}`;
+  return new Promise((resolve, reject) => {
+    connection.query(query, data, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
   });
 }
-// updateDirectorWithID(51,'Krish');
 
 // Delete the director with given ID
 function deleteDirectorWithID(id) {
-  connection.query('DELETE FROM Directors WHERE Id = (?)', id, (err, results) => {
-    if (err) throw err;
-    console.log(results);
+  return new Promise((resolve, reject) => {
+    connection.query('DELETE FROM Directors WHERE Id = (?)', id, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
   });
 }
-// deleteDirectorWithID(51);
 
-module.exports.getAllDirectors = getAllDirectors;
-module.exports.getDirectorWithID = getDirectorWithID;
-module.exports.addNewDirector = addNewDirector;
-module.exports.updateDirectorWithID = updateDirectorWithID;
-module.exports.deleteDirectorWithID = deleteDirectorWithID;
+// addNewDirector('vivek')
+//   .then(() => updateDirectorWithID(36, 'krish'))
+//   .then(() => getDirectorWithID(36))
+//   .then(data => console.log(data))
+//   .then(() => deleteDirectorWithID(36))
+//   .then(() => getAllDirectors())
+//   .then(data => console.log(data))
+//   .then(() => connection.end())
+//   .catch(error => console.log(error));
+
+module.exports = {
+  getAllDirectors,
+  getDirectorWithID,
+  addNewDirector,
+  updateDirectorWithID,
+  deleteDirectorWithID,
+};

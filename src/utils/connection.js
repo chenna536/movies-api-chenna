@@ -8,6 +8,5 @@ const connection = mysql.createConnection({
   database: 'keshav',
 });
 
-// Create connection!!
 // export required data
 module.exports.connection = connection;

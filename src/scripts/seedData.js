@@ -19,6 +19,7 @@ connection.connect((err) => {
   }
   console.log(`connected as Id ${connection.threadId}`);
 });
+
 // Create table!!
 function createTable(queryForTable, name) {
   return new Promise((resolve, reject) => {
@@ -34,21 +35,15 @@ function createTable(queryForTable, name) {
 }
 
 // Create Movies Table!!
-const createMoviesTable = 'create table Movies ( Rank int auto_increment unique, Title varchar(100), Description varchar(1000), Runtime int, Genre varchar(15), Rating float, Metascore int, Votes int, Gross_Earning_in_Mil float, Director INT, Actor varchar(200), Year int(4) );';
-
+const createMoviesTable = 'create table Movies (Id int auto_increment PRIMARY KEY, Rank int, Title varchar(100), Description varchar(1000), Runtime int, Genre varchar(15), Rating float, Metascore int, Votes int, Gross_Earning_in_Mil float, Director INT, Actor varchar(200), Year int(4), FOREIGN KEY (Director) REFERENCES Directors(Id) ON DELETE set null on update CASCADE);';
 
 // Create Directors Table!!
 const createDirectorsTable = 'create table Directors ( Id INT AUTO_INCREMENT PRIMARY KEY, Director_name VARCHAR(30))';
 
-// connection.query('SHOW Tables', (err, results) => {
-//   if (err) throw err;
-//   else console.log(results);
-// });
-
 // Delete table!!
 function dropTable(tableName) {
   return new Promise((resolve, reject) => {
-    connection.query(`DROP TABLE ${tableName}`, (err, result) => {
+    connection.query(`DROP TABLE IF EXISTS ${tableName}`, (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -58,11 +53,6 @@ function dropTable(tableName) {
     });
   });
 }
-
-// connection.query('SELECT * FROM Directors', (err, results) => {
-//   if (err) throw err;
-//   console.log(results);
-// });
 
 // Insert data into Movies tables!!
 function selectIDFromDirector(obj) {
@@ -102,12 +92,6 @@ function insertIntoMovies(data) {
   });
 }
 
-// insertIntoMovies(inputData).then((out) => {
-//   console.log(out);
-// });
-
-// console.log(insertIntoMovies(inputData));
-
 // Insert data into Directors tables!!
 
 function insertIntoDirectors(data) {
@@ -128,10 +112,12 @@ function insertIntoDirectors(data) {
     console.log('inserted into Directors Successfully');
   });
 }
-dropTable('Directors')
-  .then(() => dropTable('Movies')
+
+dropTable('Movies')
+  .then(() => dropTable('Directors')
     .then(() => createTable(createDirectorsTable, 'Directors')
       .then(() => createTable(createMoviesTable, 'Movies')
         .then(() => insertIntoDirectors(inputData)
           .then(() => insertIntoMovies(inputData)
-            .then(() => connection.end()))))));
+            .then(() => connection.end())
+            .catch(error => console.log(error)))))));
