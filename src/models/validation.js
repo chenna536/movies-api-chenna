@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 
 const directorSchema = Joi.object().keys({
-  Id: Joi.number().integer().min(1).max(36),
+  Id: Joi.number().integer().min(1).max(35),
   Director_name: Joi.string(),
 });
 
@@ -18,11 +18,10 @@ function validateDirectorName(schema, directorName) {
 }
 
 const movieSchema = Joi.object().keys({
-  Id: Joi.number().integer().min(1).max(36)
+  Id: Joi.number().integer().min(1).max(100)
     .required(),
-  Rank: Joi.number().integer().min(1).max(51)
-    .required(),
-  Title: Joi.string().required(),
+  Rank: Joi.number().integer().min(1).max(100),
+  Title: Joi.string(),
   Description: Joi.string(),
   Runtime: Joi.number().integer(),
   Genre: Joi.string(),
@@ -30,29 +29,32 @@ const movieSchema = Joi.object().keys({
   Metascore: Joi.number().integer(),
   Votes: Joi.number().integer(),
   Gross_Earning_in_Mil: Joi.number().positive().precision(2),
-  Director: Joi.number().integer().required(),
-  Actor: Joi.string().required(),
+  Director: Joi.number().integer(),
+  Actor: Joi.string(),
   Year: Joi.number().greater(1900).integer(),
 });
 
-function validateMovie(schema, id, rank, desc, runtime, genre, rating, metaScore,
-  votes, grossEarning, year, title, directorId, actor) {
-  return Joi.validate({
-    Id: id,
-    Rank: rank,
-    Title: title,
-    Description: desc,
-    Runtime: runtime,
-    Genre: genre,
-    Rating: rating,
-    Metascore: metaScore,
-    Votes: votes,
-    Gross_Earning_in_Mil: grossEarning,
-    Director: directorId,
-    Actor: actor,
-    Year: year,
-  }, schema);
-}
+// console.log(Joi.validate({ Id: 1 }, movieSchema));
+
+
+// function validateMovie(schema, id, rank, desc, runtime, genre, rating, metaScore,
+//   votes, grossEarning, year, title, directorId, actor) {
+//   return Joi.validate({
+//     Id: id,
+//     Rank: rank,
+//     Title: title,
+//     Description: desc,
+//     Runtime: runtime,
+//     Genre: genre,
+//     Rating: rating,
+//     Metascore: metaScore,
+//     Votes: votes,
+//     Gross_Earning_in_Mil: grossEarning,
+//     Director: directorId,
+//     Actor: actor,
+//     Year: year,
+//   }, schema);
+// }
 
 module.exports = {
   directorSchema,
@@ -60,5 +62,4 @@ module.exports = {
   validateDirectorId,
   validateDirectorIdName,
   validateDirectorName,
-  validateMovie,
 };
