@@ -9,6 +9,7 @@ const directorRouter = express.Router();
 
 directorRouter.use(bodyParser.json());
 
+
 directorRouter.get('/', (req, res, next) => {
   functionsOfDirectors.getAllDirectors().then((data) => {
     res.status(200).send(data);

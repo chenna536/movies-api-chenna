@@ -6,7 +6,7 @@ const { connection } = functions;
 
 function getAllDirectors() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM Directors;', (error, result) => {
+    connection.query('SELECT * FROM Movies LEFT JOIN Directors ON Movies.Director = Directors.Id;', (error, result) => {
       if (error) {
         reject(error);
       } else {

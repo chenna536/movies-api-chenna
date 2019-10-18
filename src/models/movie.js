@@ -6,7 +6,7 @@ const { connection } = functions;
 
 function getAllMovies() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT Rank, Title, Director_name FROM Movies LEFT JOIN Directors ON Movies.Director = Directors.Id', (err, results) => {
+    connection.query('SELECT * FROM Movies LEFT JOIN Directors ON Movies.Director = Directors.Id', (err, results) => {
       if (err) {
         reject(err);
       } else {
@@ -51,7 +51,7 @@ function addNewMovie(data) {
 // Get the Movie with given ID
 function getMovieWithID(id) {
   return new Promise((resolve, reject) => {
-    connection.query('select Rank, Title, Director_name as Director from Movies m join Directors d on (m.Director = d.Id) where m.Id = ?;', id, (err, results) => {
+    connection.query('select *, Director_name as Director from Movies m join Directors d on (m.Director = d.Id) where m.Id = ?;', id, (err, results) => {
       if (err) {
         reject(err);
       } else {

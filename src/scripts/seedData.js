@@ -119,5 +119,4 @@ dropTable('Movies')
       .then(() => createTable(createMoviesTable, 'Movies')
         .then(() => insertIntoDirectors(inputData)
           .then(() => insertIntoMovies(inputData)
-            .then(() => connection.end())
             .catch(error => console.log(error)))))));
